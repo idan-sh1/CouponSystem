@@ -1,5 +1,8 @@
 ﻿using CouponSystem.Data;
+using CouponSystem.DTOs.Responses;
+using CouponSystem.DTOs.Users;
 using CouponSystem.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,6 +19,47 @@ namespace CouponSystem.Controllers
         {
             _userManager = userManager;
             _jwtHandler = jwtHandler;
+        }
+
+        // ----------------------------------------------------------------- //
+                           // Add New User With "User" Role
+                              // (requires "Admin" role)
+        // ----------------------------------------------------------------- //
+
+        [HttpPost("register")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> RegisterUser([FromBody] UserRegistrationDTO userDTO)
+        {
+            // If userDTO is empty --> Return 400 Bad Request
+            if (userDTO == null)
+            {
+                return BadRequest(new { Error = "Invalid user data." });
+            }
+
+            // Copy data from DTO to User
+            var user = new User
+            {
+                UserName = userDTO.Email,
+                Email = userDTO.Email,
+            };
+
+            // Register user
+            var result = await _userManager.CreateAsync(user, userDTO.Password!);
+
+            // Check registration results
+            if (!result.Succeeded)
+            {
+                var errors = result.Errors.Select(e => e.Description);
+
+                // 400 Bad Request if registration faild
+                return BadRequest(new RegistrationResponseDTO { Errors = errors });
+            }
+
+            // Assign role to the new user
+            await _userManager.AddToRoleAsync(user, "User");
+
+            // 201 Created with the user in the response body
+            return StatusCode(201, user);
         }
     }
 }
