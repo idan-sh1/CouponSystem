@@ -152,6 +152,32 @@ namespace CouponSystem.Controllers
         }
 
         // ----------------------------------------------------------------- //
+                                  // Delete Coupon
+                             // (requires "Admin" role)
+        // ----------------------------------------------------------------- //
+
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
+        public IActionResult DeleteCoupon(int id)
+        {
+            // Find coupon by id
+            var coupon = _dbContext.Coupons.Where(c => c.Id == id).FirstOrDefault();
+
+            // If coupon doesn't exist --> Return 404 Not Found
+            if (coupon == null)
+            {
+                return NotFound(new { Error = "The coupon does not exist." });
+            }
+
+            // Remove coupon and save changes to db
+            _dbContext.Coupons.Remove(coupon);
+            _dbContext.SaveChanges();
+
+            // 204 No Content
+            return NoContent();
+        }
+
+        // ----------------------------------------------------------------- //
                               // Display Coupon By Id
                              // (requires "Admin" role)
         // ----------------------------------------------------------------- //
