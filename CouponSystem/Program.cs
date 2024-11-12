@@ -1,4 +1,8 @@
 
+using CouponSystem.Data;
+using CouponSystem.Models;
+using Microsoft.EntityFrameworkCore;
+
 namespace CouponSystem
 {
     public class Program
@@ -7,12 +11,41 @@ namespace CouponSystem
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            // ----------------------------------------------------------------- //
+                               // Add services to the container
+            // ----------------------------------------------------------------- //
+
+            // Add EF Core with SQL Server
+            builder.Services.AddDbContext<AppDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            // Add Identity services
+            builder.Services.AddIdentity<User, Role>(opt =>
+            {
+                opt.Password.RequireNonAlphanumeric = false; // disable special chars password requirement
+                opt.Password.RequireUppercase = false; // disable uppercase letter password requirement
+            })
+                .AddEntityFrameworkStores<AppDbContext>();
+
+            // Add Enable CORS policy
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("EnableCORS", builder =>
+                {
+                    builder.AllowAnyOrigin()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+                });
+            });
 
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            // ----------------------------------------------------------------- //
+                                   // Build the application
+            // ----------------------------------------------------------------- //
 
             var app = builder.Build();
 
@@ -24,6 +57,9 @@ namespace CouponSystem
             }
 
             app.UseHttpsRedirection();
+
+            // Use "EnableCORS" policy
+            app.UseCors("EnableCORS");
 
             app.UseAuthorization();
 
