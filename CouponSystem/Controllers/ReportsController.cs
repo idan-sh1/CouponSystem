@@ -68,5 +68,19 @@ namespace CouponSystem.Controllers
             // 200 OK with the coupons in the response body
             return Ok(coupons);
         }
+
+        // ----------------------------------------------------------------- //
+                        // Export All Coupons To Excel File 
+        // ----------------------------------------------------------------- //
+
+        [HttpGet("export")]
+        public FileResult ExportAllToExcel()
+        {
+            // Create excel file from the coupons list
+            var file = ExcelHelper.CreateFile(_dbContext.Coupons.ToList());
+
+            // Return the file
+            return File(file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "all-coupons.xlsx");
+        }
     }
 }
