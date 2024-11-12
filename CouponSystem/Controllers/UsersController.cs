@@ -61,5 +61,30 @@ namespace CouponSystem.Controllers
             // 201 Created with the user in the response body
             return StatusCode(201, user);
         }
+
+        // ----------------------------------------------------------------- //
+                                    // User Login
+        // ----------------------------------------------------------------- //
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] UserLoginDTO userDTO)
+        {
+            // Find user by email address
+            var user = await _userManager.FindByNameAsync(userDTO.Email!);
+
+            // Check if user not exist or password not match or user is disabled
+            if (user == null || !await _userManager.CheckPasswordAsync(user, userDTO.Password!) || !user.IsEnabled)
+            {
+                // 401 Unauthorized if login faild
+                return Unauthorized(new LoginResponseDTO { Error = "The username or passoword are incorrect." });
+            }
+
+            // Create token
+            var roles = await _userManager.GetRolesAsync(user);
+            var token = _jwtHandler.CreateToken(user, roles);
+
+            // 200 Ok with the token in the response body
+            return Ok(new LoginResponseDTO { IsSuccess = true, Token = token });
+        }
     }
 }
