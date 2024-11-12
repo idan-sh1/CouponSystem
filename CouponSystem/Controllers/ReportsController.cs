@@ -90,7 +90,7 @@ namespace CouponSystem.Controllers
         // ----------------------------------------------------------------- //
 
         [HttpGet("data:{couponsData}")]
-        public ActionResult ExportFilteredCoToExcel(string couponsData)
+        public ActionResult ExportFilteredToExcel(string couponsData)
         {
             // Convert the string into coupons list
             List<Coupon> coupons = JsonConvert.DeserializeObject<List<Coupon>>(couponsData)!;
