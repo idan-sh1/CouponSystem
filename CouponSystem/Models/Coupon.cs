@@ -1,4 +1,5 @@
 ﻿using FoolProof.Core;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace CouponSystem.Models
@@ -10,9 +11,11 @@ namespace CouponSystem.Models
         public required string Description { get; set; }
 
         [RequiredIfEmpty("PercentOff")]
+        [Column(TypeName = "decimal(18,4)")]
         public decimal? AmountOff { get; set; }
 
         [RequiredIfEmpty("AmountOff")]
+        [Column(TypeName = "decimal(18,4)")]
         public decimal? PercentOff { get; set; }
 
         public required string UserId { get; set; }
