@@ -27,6 +27,23 @@ namespace CouponSystem.Data
 
             // Seeding the User-Role relation to AspNetUserRoles table
             builder.ApplyConfiguration(new SeedUserRoleConfig());
+
+            // ----------------------------------------------------------------- //
+                             // Set relationships between entities
+            // ----------------------------------------------------------------- //
+
+            // User -> Coupons relationship (one to many)
+            builder.Entity<User>()
+                .HasMany(u => u.Coupons)             // User has many Coupons
+                .WithOne(c => c.User)                 // Coupon has one User
+                .HasForeignKey(c => c.UserId)         // Foreign key is UserId in Coupon
+                .IsRequired();                     // Can't have Coupon without User
         }
+
+        // ----------------------------------------------------------------- //
+                                    // Add DbSets
+        // ----------------------------------------------------------------- //
+
+        public DbSet<Coupon> Coupons { get; set; }
     }
 }
