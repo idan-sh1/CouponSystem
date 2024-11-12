@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace CouponSystem
 {
@@ -70,7 +71,9 @@ namespace CouponSystem
             // Add JwtHandler service
             builder.Services.AddSingleton<JwtHandler>();
 
-            builder.Services.AddControllers();
+            // Add controllers and endpoints API explorer
+            builder.Services.AddControllers().AddJsonOptions(x =>
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles); // ignore reference cycles to prevent self-referencing loops in objects with relationships.
 
             builder.Services.AddEndpointsApiExplorer();
 
