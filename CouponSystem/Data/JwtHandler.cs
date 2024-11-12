@@ -1,5 +1,6 @@
 ﻿using CouponSystem.Models;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
@@ -39,6 +40,20 @@ namespace CouponSystem.Data
             }
 
             return claims;
+        }
+
+        // Generate JWT token options
+        private JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, List<Claim> claims)
+        {
+            var tokenOptions = new JwtSecurityToken(
+                issuer: _jwtSettings["validIssuer"],
+                audience: _jwtSettings["validAudience"],
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(Convert.ToDouble(_jwtSettings["expiresInMinutes"])),
+                signingCredentials: signingCredentials
+            );
+
+            return tokenOptions;
         }
     }
 }
