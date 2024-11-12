@@ -93,7 +93,7 @@ namespace CouponSystem.Controllers
         public ActionResult ExportFilteredCoToExcel(string couponsData)
         {
             // Convert the string into coupons list
-            var coupons = JsonConvert.DeserializeObject<List<Coupon>>(couponsData);
+            List<Coupon> coupons = JsonConvert.DeserializeObject<List<Coupon>>(couponsData)!;
 
             // If coupons data is null or empty --> Return 404 Not Found
             if (coupons.IsNullOrEmpty())
@@ -102,7 +102,7 @@ namespace CouponSystem.Controllers
             }
 
             // Create excel file from the coupons list
-            var file = ExcelHelper.CreateFile(_dbContext.Coupons.ToList());
+            var file = ExcelHelper.CreateFile(coupons);
 
             // Return the file
             return File(file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "filtered-coupons.xlsx");
