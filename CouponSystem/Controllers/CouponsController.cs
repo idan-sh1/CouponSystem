@@ -22,6 +22,88 @@ namespace CouponSystem.Controllers
         }
 
         // ----------------------------------------------------------------- //
+                                // Use Coupons By Code
+        // ----------------------------------------------------------------- //
+
+        [HttpPut("{code}")]
+        public IActionResult UseCouponByCode(string code, decimal price = 100, int couponsCount = 0)
+        {
+            // Find the coupon by its code
+            var coupon = _dbContext.Coupons.Where(c => c.Code == code).FirstOrDefault();
+
+            // If coupon doesn't exist --> Return 404 Not Found
+            if (coupon == null)
+            {
+                return NotFound(new { Error = "The coupon does not exist." });
+            }
+
+            // Add errors list
+            var errors = new List<string>();
+
+            // Check if the coupon have usage limit (and if it has been reached)
+            if (coupon.MaxUses.HasValue &&
+                coupon.MaxUses.Value <= coupon.UsesCount)
+            {
+                // Add error
+                errors.Add("Coupon usage limit has been reached.");
+            }
+
+            // Check if the coupon have expiration date (and if it has been expired)
+            if (coupon.ExpiresAt.HasValue &&
+                coupon.ExpiresAt.Value < DateTime.UtcNow)
+            {
+                // Add error
+                errors.Add("Coupon has been expired.");
+            }
+
+            // Check if there are coupons already used by the current user
+            // (and if the current coupon not allow combined discounts)
+            if (couponsCount > 0 && !coupon.CombinedDiscounts)
+            { 
+                // Add error
+                errors.Add("This coupon not allow combined discounts.");
+            }
+
+            // Check if the coupon have either amount / perecent off value
+            // (if yes calculate price, otherwise add error)
+            if (coupon.AmountOff.HasValue && coupon.AmountOff.Value > 0)
+            {
+                // Calculate new price
+                price -= coupon.AmountOff.Value;
+            }
+            else if (coupon.PercentOff.HasValue && coupon.PercentOff.Value > 0)
+            {
+                // Calculate new price
+                price -= price * coupon.PercentOff.Value / 100;
+            }
+            else
+            {
+                // Add error
+                errors.Add("Coupon is invaild.");
+            }
+
+            // If there are errors --> Return 400 Bad Request
+            if (errors.Count > 0)
+            {
+                return BadRequest(new { Errors = errors });
+            }
+
+            // Incerase the coupon's uses count by 1
+            coupon.UsesCount++;
+
+            // Increase the coupon's count of the current user by 1
+            couponsCount++;
+
+            // Update coupon and save changes to db
+            _dbContext.Coupons.Update(coupon);
+            _dbContext.SaveChanges();
+
+            // 200 OK with all relevant data in the response body
+            return Ok(new UseCouponDTO { IsSuccess = true, Price = price,
+                CombinedDiscounts = coupon.CombinedDiscounts, CouponsCount = couponsCount});
+        }
+
+        // ----------------------------------------------------------------- //
                                  // Add New Coupon
                            // (requires being logged in)
         // ----------------------------------------------------------------- //
