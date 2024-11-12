@@ -3,6 +3,8 @@ using CouponSystem.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 
 namespace CouponSystem.Controllers
 {
@@ -81,6 +83,29 @@ namespace CouponSystem.Controllers
 
             // Return the file
             return File(file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "all-coupons.xlsx");
+        }
+
+        // ----------------------------------------------------------------- //
+                    // Export Filtered Coupons Data To Excel File 
+        // ----------------------------------------------------------------- //
+
+        [HttpGet("data:{couponsData}")]
+        public ActionResult ExportFilteredCoToExcel(string couponsData)
+        {
+            // Convert the string into coupons list
+            var coupons = JsonConvert.DeserializeObject<List<Coupon>>(couponsData);
+
+            // If coupons data is null or empty --> Return 404 Not Found
+            if (coupons.IsNullOrEmpty())
+            {
+                return NotFound(new { Error = "Coupon Data was not found." });
+            }
+
+            // Create excel file from the coupons list
+            var file = ExcelHelper.CreateFile(_dbContext.Coupons.ToList());
+
+            // Return the file
+            return File(file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "filtered-coupons.xlsx");
         }
     }
 }
