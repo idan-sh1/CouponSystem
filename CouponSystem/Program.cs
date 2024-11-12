@@ -1,7 +1,10 @@
 
 using CouponSystem.Data;
 using CouponSystem.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace CouponSystem
 {
@@ -36,6 +39,30 @@ namespace CouponSystem
                     .AllowAnyHeader()
                     .AllowAnyMethod();
                 });
+            });
+
+            // Store the JWT Settings in variable
+            var jwtSettings = builder.Configuration.GetSection("JWTSettings");
+
+            // Add JWT Authentication
+            builder.Services.AddAuthentication(opt =>
+            {
+                opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings["validIssuer"],
+                    ValidAudience = jwtSettings["validAudience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8
+                        .GetBytes(jwtSettings.GetSection("securityKey").Value!))
+                };
+
             });
 
             builder.Services.AddControllers();
