@@ -55,5 +55,15 @@ namespace CouponSystem.Data
 
             return tokenOptions;
         }
+
+        // Generate token for a user with roles
+        public string CreateToken(User user, IList<string> roles)
+        {
+            var signingCredentials = GetSigningCredentials();
+            var claims = GetClaims(user, roles);
+            var tokenOptions = GenerateTokenOptions(signingCredentials, claims);
+
+            return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+        }
     }
 }
