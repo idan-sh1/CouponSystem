@@ -42,5 +42,31 @@ namespace CouponSystem.Controllers
             // 200 OK with the coupons in the response body
             return Ok(coupons);
         }
+
+        // ----------------------------------------------------------------- //
+                      // Display Coupons Created Between 2 Dates
+        // ----------------------------------------------------------------- //
+
+        [HttpGet]
+        public IActionResult GetCouponsByDate(DateTime? startDate, DateTime? endDate)
+        {
+            // If startDate is null, sets it to minimum value
+            if (startDate == null)
+            {
+                startDate = DateTime.MinValue;
+            }
+
+            // If endDate is null, sets it to maximum value
+            if (endDate == null)
+            {
+                endDate = DateTime.MaxValue;
+            }
+
+            // Store the coupons created within specified date range
+            var coupons = _dbContext.Coupons.Where(c => c.CreatedAt >= startDate).Where(c => c.CreatedAt <= endDate).ToList();
+
+            // 200 OK with the coupons in the response body
+            return Ok(coupons);
+        }
     }
 }
