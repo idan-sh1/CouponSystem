@@ -122,5 +122,21 @@ namespace CouponSystem.Controllers
             // 200 OK with the user and the message in the response body
             return Ok(new UpdateResponseDTO { IsSuccess = true, Message = message, User = user });
         }
+
+        // ----------------------------------------------------------------- //
+                                 // Display All Users
+                              // (requires "Admin" role)
+        // ----------------------------------------------------------------- //
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public IActionResult GetAllUsers()
+        {
+            // Get list of all users and store only the UserName, IsEnabled and Roles to a new list
+            var users = _userManager.Users.ToList().Select(u => new { u.UserName, u.IsEnabled, Roles = _userManager.GetRolesAsync(u).Result.ToArray() });
+
+            // 200 OK with the new list of users
+            return Ok(users);
+        }
     }
 }
