@@ -19,5 +19,28 @@ namespace CouponSystem.Controllers
             _dbContext = dbContext;
             _userManager = userManager;
         }
+
+        // ----------------------------------------------------------------- //
+                          // Display Coupons Created By User
+        // ----------------------------------------------------------------- //
+
+        [HttpGet("{email}")]
+        public IActionResult GetCouponsByUser(string email)
+        {
+            // Find the user by its email address
+            var user = _userManager.Users.Where(u => u.Email == email).FirstOrDefault();
+
+            // If user doesn't exist --> Return 404 Not Found
+            if (user == null)
+            {
+                return NotFound(new { Error = "The user does not exist." });
+            }
+
+            // Store the coupons created by the user in list
+            var coupons = _dbContext.Coupons.Where(c => c.UserId == user.Id).ToList();
+
+            // 200 OK with the coupons in the response body
+            return Ok(coupons);
+        }
     }
 }
