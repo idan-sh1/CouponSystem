@@ -86,5 +86,41 @@ namespace CouponSystem.Controllers
             // 200 Ok with the token in the response body
             return Ok(new LoginResponseDTO { IsSuccess = true, Token = token });
         }
+
+        // ----------------------------------------------------------------- //
+                       // Disable/Enable User By Email Address
+                             // (requires "Admin" role)
+        // ----------------------------------------------------------------- //
+
+        [HttpPut("{email}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DisableOrEnableUser(string email)
+        {
+            // Store the user and its roles in variables
+            var user = await _userManager.FindByEmailAsync(email);
+            var roles = await _userManager.GetRolesAsync(user!);
+
+            if (user == null)
+            {
+                // 404 Not Found if the user does not exist
+                return NotFound(new UpdateResponseDTO { Message = "The user does not exist." });
+            }
+            else if (roles.Contains("Admin"))
+            {
+                // 400 Bad Request if trying to disable admin user
+                return BadRequest(new UpdateResponseDTO { Message = "Can't disable admin user." });
+            }
+
+            // Disable the user if he was enabled, and vice versa
+            user.IsEnabled = !user.IsEnabled;
+            await _userManager.UpdateAsync(user);
+
+            // Set message to the response
+            var message = "User is now ";
+            message += user.IsEnabled ? "Enabled." : "Disabled.";
+
+            // 200 OK with the user and the message in the response body
+            return Ok(new UpdateResponseDTO { IsSuccess = true, Message = message, User = user });
+        }
     }
 }
