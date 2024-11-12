@@ -65,6 +65,9 @@ namespace CouponSystem
 
             });
 
+            // Add JwtHandler service
+            builder.Services.AddSingleton<JwtHandler>();
+
             builder.Services.AddControllers();
 
             builder.Services.AddEndpointsApiExplorer();
