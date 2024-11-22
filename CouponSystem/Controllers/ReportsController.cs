@@ -3,6 +3,7 @@ using CouponSystem.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 
@@ -27,10 +28,10 @@ namespace CouponSystem.Controllers
         // ----------------------------------------------------------------- //
 
         [HttpGet("{email}")]
-        public IActionResult GetCouponsByUser(string email)
+        public async Task<IActionResult> GetCouponsByUser(string email)
         {
             // Find the user by its email address
-            var user = _userManager.Users.Where(u => u.Email == email).FirstOrDefault();
+            var user = await _userManager.Users.Where(u => u.Email == email).FirstOrDefaultAsync();
 
             // If user doesn't exist --> Return 404 Not Found
             if (user == null)
@@ -39,7 +40,7 @@ namespace CouponSystem.Controllers
             }
 
             // Store the coupons created by the user in list
-            var coupons = _dbContext.Coupons.Where(c => c.UserId == user.Id).ToList();
+            var coupons = await _dbContext.Coupons.Where(c => c.UserId == user.Id).ToListAsync();
 
             // 200 OK with the coupons in the response body
             return Ok(coupons);
@@ -50,7 +51,7 @@ namespace CouponSystem.Controllers
         // ----------------------------------------------------------------- //
 
         [HttpGet]
-        public IActionResult GetCouponsByDate(DateTime? startDate, DateTime? endDate)
+        public async Task<IActionResult> GetCouponsByDate(DateTime? startDate, DateTime? endDate)
         {
             // If startDate is null, sets it to minimum value
             if (startDate == null)
@@ -65,7 +66,7 @@ namespace CouponSystem.Controllers
             }
 
             // Store the coupons created within specified date range
-            var coupons = _dbContext.Coupons.Where(c => c.CreatedAt >= startDate).Where(c => c.CreatedAt <= endDate).ToList();
+            var coupons = await _dbContext.Coupons.Where(c => c.CreatedAt >= startDate).Where(c => c.CreatedAt <= endDate).ToListAsync();
 
             // 200 OK with the coupons in the response body
             return Ok(coupons);
@@ -76,10 +77,10 @@ namespace CouponSystem.Controllers
         // ----------------------------------------------------------------- //
 
         [HttpGet("export")]
-        public FileResult ExportAllToExcel()
+        public async Task<FileResult> ExportAllToExcel()
         {
             // Create excel file from the coupons list
-            var file = ExcelHelper.CreateFile(_dbContext.Coupons.ToList());
+            var file = ExcelHelper.CreateFile(await _dbContext.Coupons.ToListAsync());
 
             // Return the file
             return File(file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "all-coupons.xlsx");
