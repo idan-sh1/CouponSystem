@@ -1,5 +1,6 @@
 ﻿using CouponSystem.Data;
 using CouponSystem.DTOs.Coupons;
+using CouponSystem.DTOs.Responses;
 using CouponSystem.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -35,7 +36,7 @@ namespace CouponSystem.Controllers
             // If coupon doesn't exist --> Return 404 Not Found
             if (coupon == null)
             {
-                return NotFound(new { Error = "The coupon does not exist." });
+                return NotFound(new ErrorResponseDTO { Errors = new List<string> { "The coupon does not exist." } });
             }
 
             // Add errors list
@@ -86,7 +87,7 @@ namespace CouponSystem.Controllers
             // If there are errors --> Return 400 Bad Request
             if (errors.Count > 0)
             {
-                return BadRequest(new { Errors = errors });
+                return BadRequest(new ErrorResponseDTO { Errors = errors });
             }
 
             // Incerase the coupon's uses count by 1
@@ -116,7 +117,7 @@ namespace CouponSystem.Controllers
             // If couponDTO is empty --> Return 400 Bad Request
             if (couponDTO == null)
             {
-                return BadRequest(new { Error = "Invalid coupon data." });
+                return BadRequest(new ErrorResponseDTO { Errors = new List<string> { "Invalid coupon data." } });
             }
 
             // Add errors list
@@ -142,7 +143,7 @@ namespace CouponSystem.Controllers
             // If there are errors --> Return 400 Bad Request
             if (errors.Count > 0)
             {
-                return BadRequest(new { Errors = errors });
+                return BadRequest(new ErrorResponseDTO { Errors = errors });
             }
 
             // Copy data from DTO to Coupon
@@ -179,7 +180,7 @@ namespace CouponSystem.Controllers
             // If couponDTO is empty --> Return 400 Bad Request
             if (couponDTO == null)
             {
-                return BadRequest(new { Error = "Invalid coupon data." });
+                return BadRequest(new ErrorResponseDTO { Errors = new List<string> { "Invalid coupon data." } });
             }
 
             // Find the coupon by Id
@@ -188,7 +189,7 @@ namespace CouponSystem.Controllers
             // If coupon doesn't exist --> Return 404 Not Found
             if (coupon == null)
             {
-                return NotFound(new { Error = "The coupon does not exist." });
+                return NotFound(new ErrorResponseDTO { Errors = new List<string> { "The coupon does not exist." } });
             }
 
             // Add errors list
@@ -214,7 +215,7 @@ namespace CouponSystem.Controllers
             // If there are errors --> Return 400 Bad Request
             if (errors.Count > 0)
             {
-                return BadRequest(new { Errors = errors });
+                return BadRequest(new ErrorResponseDTO { Errors = errors });
             }
 
             // Copy data from DTO to Coupon
@@ -249,7 +250,7 @@ namespace CouponSystem.Controllers
             // If coupon doesn't exist --> Return 404 Not Found
             if (coupon == null)
             {
-                return NotFound(new { Error = "The coupon does not exist." });
+                return NotFound(new ErrorResponseDTO { Errors = new List<string> { "The coupon does not exist." } });
             }
 
             // Remove coupon and save changes to db
@@ -275,7 +276,7 @@ namespace CouponSystem.Controllers
             // If coupon doesn't exist --> Return 404 Not Found
             if (coupon == null)
             {
-                return NotFound(new { Error = "The coupon does not exist." });
+                return NotFound(new ErrorResponseDTO { Errors = new List<string> { "The coupon does not exist." } });
             }
 
             // 200 OK with the coupon in the response body

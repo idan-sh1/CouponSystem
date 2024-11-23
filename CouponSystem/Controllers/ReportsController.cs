@@ -1,4 +1,5 @@
 ﻿using CouponSystem.Data;
+using CouponSystem.DTOs.Responses;
 using CouponSystem.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -6,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
-using static Azure.Core.HttpHeader;
 
 namespace CouponSystem.Controllers
 {
@@ -37,7 +37,7 @@ namespace CouponSystem.Controllers
             // If user doesn't exist --> Return 404 Not Found
             if (user == null)
             {
-                return NotFound(new { Error = "The user does not exist." });
+                return NotFound(new ErrorResponseDTO { Errors = new List<string> { "The user does not exist." } });
             }
 
             // Store the coupons created by the user in list
@@ -86,7 +86,7 @@ namespace CouponSystem.Controllers
             // If there are errors --> Return 400 Bad Request
             if (errors.Count > 0)
             {
-                return BadRequest(new { Errors = errors });
+                return BadRequest(new ErrorResponseDTO { Errors = errors });
             }
 
             // Store the coupons created within specified date range
@@ -123,7 +123,7 @@ namespace CouponSystem.Controllers
             // If coupons data is null or empty --> Return 404 Not Found
             if (coupons.IsNullOrEmpty())
             {
-                return NotFound(new { Error = "Coupon Data was not found." });
+                return NotFound(new ErrorResponseDTO { Errors = new List<string> { "Coupon Data was not found." } });
             }
 
             // Create excel file from the coupons list

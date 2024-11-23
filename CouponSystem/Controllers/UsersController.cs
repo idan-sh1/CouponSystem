@@ -33,7 +33,7 @@ namespace CouponSystem.Controllers
             // If userDTO is empty --> Return 400 Bad Request
             if (userDTO == null)
             {
-                return BadRequest(new { Error = "Invalid user data." });
+                return BadRequest(new ErrorResponseDTO { Errors = new List<string> { "Invalid user data." } });
             }
 
             // Copy data from DTO to User
