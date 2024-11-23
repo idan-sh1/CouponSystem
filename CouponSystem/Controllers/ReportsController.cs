@@ -60,10 +60,10 @@ namespace CouponSystem.Controllers
                 startDate = DateTime.MinValue;
             }
 
-            // If endDate is null, sets it to maximum value
+            // If endDate is null, sets it to current date
             if (endDate == null)
             {
-                endDate = DateTime.MaxValue;
+                endDate = DateTime.UtcNow;
             }
 
             // Add errors list
