@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using static Azure.Core.HttpHeader;
 
 namespace CouponSystem.Controllers
 {
@@ -63,6 +64,29 @@ namespace CouponSystem.Controllers
             if (endDate == null)
             {
                 endDate = DateTime.MaxValue;
+            }
+
+            // Add errors list
+            var errors = new List<string>();
+
+            // Check if at least one of the dates is set to future date
+            if (startDate > DateTime.UtcNow || endDate > DateTime.UtcNow)
+            {
+                // Add error
+                errors.Add("Date cannot be set to future date.");
+            }
+
+            // Check if the minimum date is greater than the maximum date
+            if (startDate > endDate)
+            {
+                // Add error
+                errors.Add("Minimun date cannot be greater than Maximum date.");
+            }
+
+            // If there are errors --> Return 400 Bad Request
+            if (errors.Count > 0)
+            {
+                return BadRequest(new { Errors = errors });
             }
 
             // Store the coupons created within specified date range
