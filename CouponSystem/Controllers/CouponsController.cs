@@ -4,6 +4,7 @@ using CouponSystem.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 
 namespace CouponSystem.Controllers
@@ -26,10 +27,10 @@ namespace CouponSystem.Controllers
         // ----------------------------------------------------------------- //
 
         [HttpPut("{code}")]
-        public IActionResult UseCouponByCode(string code, decimal price = 100, int couponsCount = 0)
+        public async Task<IActionResult> UseCouponByCode(string code, decimal price = 100, int couponsCount = 0)
         {
             // Find the coupon by its code
-            var coupon = _dbContext.Coupons.Where(c => c.Code == code).FirstOrDefault();
+            var coupon = await _dbContext.Coupons.Where(c => c.Code == code).FirstOrDefaultAsync();
 
             // If coupon doesn't exist --> Return 404 Not Found
             if (coupon == null)
@@ -96,7 +97,7 @@ namespace CouponSystem.Controllers
 
             // Update coupon and save changes to db
             _dbContext.Coupons.Update(coupon);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
             // 200 OK with all relevant data in the response body
             return Ok(new UseCouponDTO { IsSuccess = true, Price = price,
@@ -110,7 +111,7 @@ namespace CouponSystem.Controllers
 
         [HttpPost]
         [Authorize]
-        public IActionResult AddCoupon([FromBody] AddCouponDTO couponDTO)
+        public async Task<IActionResult> AddCoupon([FromBody] AddCouponDTO couponDTO)
         {
             // If couponDTO is empty --> Return 400 Bad Request
             if (couponDTO == null)
@@ -159,8 +160,8 @@ namespace CouponSystem.Controllers
             };
 
             // Save changes to db
-            _dbContext.Coupons.Add(coupon);
-            _dbContext.SaveChanges();
+            await _dbContext.Coupons.AddAsync(coupon);
+            await _dbContext.SaveChangesAsync();
 
             // 201 Created with the coupon in the response body
             return StatusCode(201, coupon);
@@ -173,7 +174,7 @@ namespace CouponSystem.Controllers
 
         [HttpPut("id:{id}")]
         [Authorize(Roles = "Admin")]
-        public IActionResult EditCoupon([FromBody] EditCouponDTO couponDTO, int id)
+        public async Task<IActionResult> EditCoupon([FromBody] EditCouponDTO couponDTO, int id)
         {
             // If couponDTO is empty --> Return 400 Bad Request
             if (couponDTO == null)
@@ -182,7 +183,7 @@ namespace CouponSystem.Controllers
             }
 
             // Find the coupon by Id
-            var coupon = _dbContext.Coupons.Where(c => c.Id == id).FirstOrDefault();
+            var coupon = await _dbContext.Coupons.Where(c => c.Id == id).FirstOrDefaultAsync();
 
             // If coupon doesn't exist --> Return 404 Not Found
             if (coupon == null)
@@ -227,7 +228,7 @@ namespace CouponSystem.Controllers
 
             // Update coupon and save changes to db
             _dbContext.Coupons.Update(coupon);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
             // 200 OK with the coupon in the response body
             return Ok(coupon);
@@ -240,10 +241,10 @@ namespace CouponSystem.Controllers
 
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
-        public IActionResult DeleteCoupon(int id)
+        public async Task<IActionResult> DeleteCoupon(int id)
         {
             // Find coupon by id
-            var coupon = _dbContext.Coupons.Where(c => c.Id == id).FirstOrDefault();
+            var coupon = await _dbContext.Coupons.Where(c => c.Id == id).FirstOrDefaultAsync();
 
             // If coupon doesn't exist --> Return 404 Not Found
             if (coupon == null)
@@ -253,7 +254,7 @@ namespace CouponSystem.Controllers
 
             // Remove coupon and save changes to db
             _dbContext.Coupons.Remove(coupon);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
             // 204 No Content
             return NoContent();
@@ -266,10 +267,10 @@ namespace CouponSystem.Controllers
 
         [HttpGet("{id}")]
         [Authorize(Roles = "Admin")]
-        public IActionResult GetCouponById(int id)
+        public async Task<IActionResult> GetCouponById(int id)
         {
             // Find coupon by id
-            var coupon = _dbContext.Coupons.Where(c => c.Id == id).FirstOrDefault();
+            var coupon = await _dbContext.Coupons.Where(c => c.Id == id).FirstOrDefaultAsync();
 
             // If coupon doesn't exist --> Return 404 Not Found
             if (coupon == null)
