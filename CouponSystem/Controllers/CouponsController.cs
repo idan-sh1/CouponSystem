@@ -15,12 +15,10 @@ namespace CouponSystem.Controllers
     public class CouponsController : ControllerBase
     {
         private readonly AppDbContext _dbContext;
-        private readonly UserManager<User> _userManager;
 
-        public CouponsController(AppDbContext dbContext, UserManager<User> userManager)
+        public CouponsController(AppDbContext dbContext)
         {
             _dbContext = dbContext;
-            _userManager = userManager;
         }
 
         // ----------------------------------------------------------------- //
